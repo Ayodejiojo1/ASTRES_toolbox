@@ -12,28 +12,24 @@ library("xlsx")
 install.packages("ggplot")
 library(ggplot2)
 
-setwd("C:/Users/Lenovo/Dropbox/My PC (DESKTOP-S5BBDSI)/Desktop/Ayodeji Thesis/new_piezometric/453_18")
-data <- read.xlsx("453_18.xlsx",1, header = TRUE)
+setwd("path to working folder")
+data <- read.xlsx("filename.xlsx",1, header = TRUE)
 date <- as.Date(data$Date)
 PiezometricSeries <- data$Piezometric.Level
-charttitle<- basename(getwd())
+charttitle<- basename(getwd()) #this extracts the file name and makes it the plot title
 
-# Piezometric deconstrction. The window length was taken as
-# 10% of the number of observations. This really did not affect the result
-# Other factors are used as default from the RSSA package
-
-# piezo_SSA <- ssa(PiezometricSeries, L = (0.5* (length(PiezometricSeries))), svd.method = "auto")
+# Piezometric deconstrction
+#The window length was taken as 50% of the number of observations. 
+#You can specify the window length and the decomposition method. For this, I assumed the default. 
 piezo_SSA <- ssa(PiezometricSeries)
-jpeg("eigenval.jpg")
+
+jpeg("eigenval.jpg") #save plot in the directory
 plot(piezo_SSA)
 dev.off()
 
-#Reconstructing the series
-#The number of components taken as trend really did not affect the trend output
-#But others affect the seasonality
+#Reconstruction
+#the trend and seasonality can be calculated from the eigenvalues plot
 r1 = reconstruct(piezo_SSA, groups = list(Trend=c(1:3),  Seasonality=c(3:12)))
-
-#r1 = reconstruct(piezo_SSA, groups = list(Trend=c(1,4), Seasonality=c(2:3,5:6)))
 
 #Plotting with ggplot
 PiezometricTrend <- r1$Trend
